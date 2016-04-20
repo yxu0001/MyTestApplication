@@ -38,6 +38,7 @@
     <!-- Button labels -->
     <string name="sign_out">Sign Out</string>
     <string name="disconnect">Disconnect</string>
+    <string name="go_to_calendar">Go To Calendar</string>
 
     <!-- Content Description for images -->
     <string name="desc_google_icon">Google Logo</string>

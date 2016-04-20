@@ -60,6 +60,7 @@ public class SignInActivity extends AppCompatActivity implements
         findViewById(R.id.sign_in_button).setOnClickListener(this);
         findViewById(R.id.sign_out_button).setOnClickListener(this);
         findViewById(R.id.disconnect_button).setOnClickListener(this);
+        findViewById(R.id.go_to_calendar).setOnClickListener(this);
 
         // [START configure_signin]
         // Configure sign-in to request the user's ID, email address, and basic
@@ -160,6 +161,8 @@ public class SignInActivity extends AppCompatActivity implements
 
             mStatusTextView.setText(getString(R.string.signed_in_fmt, acct.getDisplayName()));
             updateUI(true);
+
+            //goToCalendar();
         } else {
             // Signed out, show unauthenticated UI.
             updateUI(false);
@@ -202,6 +205,13 @@ public class SignInActivity extends AppCompatActivity implements
     }
     // [END revokeAccess]
 
+    // [START goToCalendar]
+    private void goToCalendar() {
+        Intent intent = new Intent(SignInActivity.this, CalendarActivity.class);
+        SignInActivity.this.startActivity(intent);
+    }
+    // [END goToCalendar]
+
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
         // An unresolvable error has occurred and Google APIs (including Sign-In) will not
@@ -229,11 +239,13 @@ public class SignInActivity extends AppCompatActivity implements
         if (signedIn) {
             findViewById(R.id.sign_in_button).setVisibility(View.GONE);
             findViewById(R.id.sign_out_and_disconnect).setVisibility(View.VISIBLE);
+            findViewById(R.id.go_to_calendar).setVisibility(View.VISIBLE);
         } else {
             mStatusTextView.setText(R.string.signed_out);
 
             findViewById(R.id.sign_in_button).setVisibility(View.VISIBLE);
             findViewById(R.id.sign_out_and_disconnect).setVisibility(View.GONE);
+            findViewById(R.id.go_to_calendar).setVisibility(View.INVISIBLE);
         }
     }
 
@@ -248,6 +260,9 @@ public class SignInActivity extends AppCompatActivity implements
                 break;
             case R.id.disconnect_button:
                 revokeAccess();
+                break;
+            case R.id.go_to_calendar:
+                goToCalendar();
                 break;
         }
     }
