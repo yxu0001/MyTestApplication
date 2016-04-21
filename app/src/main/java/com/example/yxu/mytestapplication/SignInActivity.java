@@ -1,6 +1,7 @@
 package com.example.yxu.mytestapplication;
 
 import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -211,7 +212,7 @@ public class SignInActivity extends AppCompatActivity implements
     // [START goToCalendar]
     private void goToCalendar() {
         Intent intent = new Intent(SignInActivity.this, CalendarActivity.class);
-        intent.putExtra("account", mAccount);
+        intent.putExtra(AccountManager.KEY_ACCOUNT_NAME, mAccount.getEmail());
         SignInActivity.this.startActivity(intent);
     }
     // [END goToCalendar]

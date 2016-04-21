@@ -1,5 +1,6 @@
 package com.example.yxu.mytestapplication;
 
+import com.google.android.gms.auth.UserRecoverableAuthException;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.api.client.extensions.android.http.AndroidHttp;
@@ -335,6 +336,9 @@ public class CalendarActivity extends Activity
             try {
                 Log.d("Calendar", "token in MakeRequestTask="+mCredential.getToken());
                 return getDataFromApi();
+            } catch (UserRecoverableAuthException urae) {
+                startActivityForResult(urae.getIntent(), REQUEST_AUTHORIZATION);
+                return null;
             } catch (Exception e) {
                 mLastError = e;
                 cancel(true);
