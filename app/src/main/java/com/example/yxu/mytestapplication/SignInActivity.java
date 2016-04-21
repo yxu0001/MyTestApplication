@@ -1,9 +1,9 @@
 package com.example.yxu.mytestapplication;
 
 import android.accounts.Account;
-import android.accounts.AccountManager;
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -23,6 +23,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.Scopes;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.OptionalPendingResult;
@@ -45,8 +46,9 @@ public class SignInActivity extends AppCompatActivity implements
     private GoogleApiClient mGoogleApiClient;
     private TextView mStatusTextView;
     private ProgressDialog mProgressDialog;
+    private GoogleSignInAccount mAccount;
 
-    String SCOPE = "oauth2:https://www.googleapis.com/auth/userinfo.profile";
+    String SCOPE = Scopes.PROFILE;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -155,16 +157,17 @@ public class SignInActivity extends AppCompatActivity implements
         Log.d(TAG, "handleSignInResult:" + result.isSuccess());
         if (result.isSuccess()) {
             // Signed in successfully, show authenticated UI.
-            GoogleSignInAccount acct = result.getSignInAccount();
+            mAccount= result.getSignInAccount();
 
-            new GetUsernameTask(SignInActivity.this, acct.getEmail(), SCOPE).execute();
+            new GetUsernameTask(SignInActivity.this, mAccount.getEmail(), SCOPE).execute();
 
-            mStatusTextView.setText(getString(R.string.signed_in_fmt, acct.getDisplayName()));
+            mStatusTextView.setText(getString(R.string.signed_in_fmt, mAccount.getEmail()));
             updateUI(true);
 
             //goToCalendar();
         } else {
             // Signed out, show unauthenticated UI.
+            mAccount = null;
             updateUI(false);
         }
     }
@@ -208,6 +211,7 @@ public class SignInActivity extends AppCompatActivity implements
     // [START goToCalendar]
     private void goToCalendar() {
         Intent intent = new Intent(SignInActivity.this, CalendarActivity.class);
+        intent.putExtra("account", mAccount);
         SignInActivity.this.startActivity(intent);
     }
     // [END goToCalendar]

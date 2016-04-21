@@ -31,6 +31,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
+import android.util.Log;
 import android.widget.CalendarView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -43,7 +44,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Calendar;
-import java.util.TimeZone;
 
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
@@ -314,10 +314,12 @@ public class CalendarActivity extends Activity
     private class MakeRequestTask extends AsyncTask<Void, Void, List<String>> {
         private com.google.api.services.calendar.Calendar mService = null;
         private Exception mLastError = null;
+        private GoogleAccountCredential mCredential;
 
         public MakeRequestTask(GoogleAccountCredential credential) {
             HttpTransport transport = AndroidHttp.newCompatibleTransport();
             JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
+            mCredential = credential;
             mService = new com.google.api.services.calendar.Calendar.Builder(
                     transport, jsonFactory, credential)
                     .setApplicationName("Google Calendar API Android Quickstart")
@@ -331,6 +333,7 @@ public class CalendarActivity extends Activity
         @Override
         protected List<String> doInBackground(Void... params) {
             try {
+                Log.d("Calendar", "token in MakeRequestTask="+mCredential.getToken());
                 return getDataFromApi();
             } catch (Exception e) {
                 mLastError = e;
