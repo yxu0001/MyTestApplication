@@ -17,6 +17,9 @@ import com.google.api.services.calendar.CalendarScopes;
 import com.google.api.client.util.DateTime;
 
 import com.google.api.services.calendar.model.*;
+import com.google.common.base.Predicates;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.Lists;
 
 import android.Manifest;
 import android.accounts.AccountManager;
@@ -68,6 +71,7 @@ public class CalendarActivity extends Activity
     private int mSelectedYear;
     private int mSelectedMonth;
     private int mSelectedDay;
+    private List<String> mEventStrings;
 
     /**
      * Create the main activity.
@@ -93,7 +97,7 @@ public class CalendarActivity extends Activity
                 mSelectedMonth = month + 1; // month is 0 based.
                 mSelectedDay = dayOfMonth;
                 Toast.makeText(getApplicationContext(), mSelectedMonth + "/" + mSelectedDay + "/" + mSelectedYear, Toast.LENGTH_SHORT).show();
-                getResultsFromApi();
+                showOutput();
             }
         });
 
@@ -117,11 +121,24 @@ public class CalendarActivity extends Activity
             mCredential.setSelectedAccountName(accountName);
             getResultsFromApi();
         }
-
-        //getResultsFromApi();
     }
 
 
+    private List<String> filterForSelectedDay() {
+        String pattern = mSelectedYear + "-" + "0?" + mSelectedMonth + "-" + mSelectedDay;
+        List<String> filtered = Lists.newArrayList(Collections2.filter(mEventStrings, Predicates.containsPattern(pattern)));
+        return filtered;
+    }
+
+    private void showOutput() {
+        List<String> filtered = filterForSelectedDay();
+        if (filtered.size() > 0) {
+            filtered.add(0, "Data retrieved using the Google Calendar API:");
+            mOutputText.setText(TextUtils.join("\n", filtered));
+        } else {
+            mOutputText.setText("No events today");
+        }
+    }
 
     /**
      * Attempt to call the API, after verifying that all the preconditions are
@@ -365,18 +382,12 @@ public class CalendarActivity extends Activity
          * @throws IOException
          */
         private List<String> getDataFromApi() throws IOException {
-            // List the next 10 events from the primary calendar.
-
-//            Calendar cal = Calendar.getInstance();
-//            DateTime bDay = new DateTime(false, cal.getTimeInMillis(), null);
-//
-//            cal.add(Calendar.HOUR, 24); // advance a day.
-//            DateTime eDay = new DateTime(false, cal.getTimeInMillis(), null);
-
+            // List up to 100 events from the primary calendar in this month.
             SimpleDateFormat formatter = new SimpleDateFormat("yyyy:MM:dd:HH:mm");
             String beginningOfToday = mSelectedYear + ":"
                         + mSelectedMonth + ":"
-                        + mSelectedDay + ":"
+                        + "1:"
+                        //+ mSelectedDay + ":"
                         + "00:00";
             Date d = null;
             try {
@@ -385,23 +396,14 @@ public class CalendarActivity extends Activity
 
             }
 
-//            Events events = mService.events().list("primary")
-//                    .setMaxResults(10)
-//                    .setTimeMin(bDay)
-//                    .setTimeMax(eDay)
-//                    .setOrderBy("startTime")
-//                    .setSingleEvents(true)
-//                    .execute();
-
             Events events;
-
 
             if (d != null) {
                 DateTime bDay = new DateTime(d.getTime());
 
                 Calendar calendar = Calendar.getInstance();
                 calendar.setTime(d);
-                calendar.add(Calendar.HOUR, 24);
+                calendar.add(Calendar.DATE, 31);
                 DateTime eDay = new DateTime(calendar.getTime());
                 events = mService.events().list("primary")
                         .setMaxResults(10)
@@ -412,7 +414,7 @@ public class CalendarActivity extends Activity
                         .execute();
             } else {
                 events = mService.events().list("primary")
-                        .setMaxResults(10)
+                        .setMaxResults(100)
                         .setTimeMin(new DateTime(System.currentTimeMillis()))
                         .setOrderBy("startTime")
                         .setSingleEvents(true)
@@ -448,8 +450,8 @@ public class CalendarActivity extends Activity
             if (output == null || output.size() == 0) {
                 mOutputText.setText("No results returned.");
             } else {
-                output.add(0, "Data retrieved using the Google Calendar API:");
-                mOutputText.setText(TextUtils.join("\n", output));
+                mEventStrings = output;
+                showOutput();
             }
         }
 
@@ -473,6 +475,7 @@ public class CalendarActivity extends Activity
                 mOutputText.setText("Request cancelled.");
             }
         }
+
     }
 }
 
