@@ -92,7 +92,7 @@ public class CalendarActivity extends Activity
                 mSelectedYear = year;
                 mSelectedMonth = month + 1; // month is 0 based.
                 mSelectedDay = dayOfMonth;
-                Toast.makeText(getApplicationContext(), mSelectedMonth + "/" + mSelectedDay + "/" + mSelectedYear, Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), mSelectedMonth + "/" + mSelectedDay + "/" + mSelectedYear, Toast.LENGTH_SHORT).show();
                 getResultsFromApi();
             }
         });
@@ -105,7 +105,20 @@ public class CalendarActivity extends Activity
                 getApplicationContext(), Arrays.asList(SCOPES))
                 .setBackOff(new ExponentialBackOff());
 
-        getResultsFromApi();
+        // Set the signed in user.
+        Intent intent = getIntent();
+        String accountName = intent.getExtras().getString(AccountManager.KEY_ACCOUNT_NAME);
+        if (accountName != null) {
+            SharedPreferences settings =
+                    getPreferences(Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = settings.edit();
+            editor.putString(PREF_ACCOUNT_NAME, accountName);
+            editor.apply();
+            mCredential.setSelectedAccountName(accountName);
+            getResultsFromApi();
+        }
+
+        //getResultsFromApi();
     }
 
 
