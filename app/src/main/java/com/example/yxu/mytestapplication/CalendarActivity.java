@@ -111,15 +111,17 @@ public class CalendarActivity extends Activity
 
         // Set the signed in user.
         Intent intent = getIntent();
-        String accountName = intent.getExtras().getString(AccountManager.KEY_ACCOUNT_NAME);
-        if (accountName != null) {
-            SharedPreferences settings =
-                    getPreferences(Context.MODE_PRIVATE);
-            SharedPreferences.Editor editor = settings.edit();
-            editor.putString(PREF_ACCOUNT_NAME, accountName);
-            editor.apply();
-            mCredential.setSelectedAccountName(accountName);
-            getResultsFromApi();
+        if (intent.getExtras() != null) {
+            String accountName = intent.getExtras().getString(AccountManager.KEY_ACCOUNT_NAME);
+            if (accountName != null) {
+                SharedPreferences settings =
+                        getPreferences(Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = settings.edit();
+                editor.putString(PREF_ACCOUNT_NAME, accountName);
+                editor.apply();
+                mCredential.setSelectedAccountName(accountName);
+                getResultsFromApi();
+            }
         }
     }
 
